@@ -3,12 +3,60 @@ package com.example.clientscheduler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
-public class HelloController {
-    @FXML
-    private Label welcomeText;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 
-    @FXML
-    protected void onHelloButtonClick() {
-        welcomeText.setText("Welcome to JavaFX Application!");
+import java.io.IOException;
+import java.net.URL;
+import java.sql.SQLException;
+import java.util.Optional;
+import java.util.ResourceBundle;
+
+import Helper.ClientQuery;
+import Helper.JDBC;
+
+/**
+ * Controls the FXML elements for the main application window and includes methods and data types to act on that window.
+ *
+ * FUTURE ENHANCEMENT: One thing that wasn't asked of me but would be cool to implement is filtering without having to input the "enter" key.  I think it's much sleeker to have
+ your results filter as you type, but the way it is now is okay.  That's just the thing that most jumped out at me when going through the functionality.
+ */
+public class HelloController implements Initializable {
+
+    public TextField username;
+    public TextField password;
+    public Button login;
+
+    /**
+     * Loads all initial data pertaining to the Tables/Columns.
+     *
+     * @param url The URL, if any, to pull data from
+     * @param resourceBundle Any included resources
+     */
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {}
+
+    public void login() throws SQLException, IOException {
+        String user_entry = username.getText();
+        String user_pw = password.getText();
+
+        boolean logged_in = ClientQuery.login(user_entry, user_pw);
+        if (logged_in) {
+            Stage stage = (Stage) login.getScene().getWindow();
+            stage.close();
+
+            FXMLLoader fxmlLoader = new FXMLLoader(ClientScheduler.class.getResource("main.fxml"));
+            Scene scene = new Scene(fxmlLoader.load(), 640, 400);
+            stage.setScene(scene);
+            stage.show();
+        }
     }
 }
