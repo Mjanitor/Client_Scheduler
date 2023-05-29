@@ -1,27 +1,20 @@
 package com.example.clientscheduler;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.Optional;
+import java.time.ZoneId;
 import java.util.ResourceBundle;
 
 import Helper.ClientQuery;
-import Helper.JDBC;
+
+import java.time.ZoneId;
 
 /**
  * Controls the FXML elements for the main application window and includes methods and data types to act on that window.
@@ -34,15 +27,24 @@ public class HelloController implements Initializable {
     public TextField username;
     public TextField password;
     public Button login;
+    public Label location;
+    ResourceBundle rb;
 
     /**
      * Loads all initial data pertaining to the Tables/Columns.
      *
      * @param url The URL, if any, to pull data from
-     * @param resourceBundle Any included resources
+     * @param rb Any included resources
      */
     @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {}
+    public void initialize(URL url, ResourceBundle rb) {
+        this.rb = rb;
+
+        username.setPromptText(rb.getString("Username"));
+        password.setPromptText(rb.getString("Password"));
+        login.setText(rb.getString("Login"));
+        location.setText(ZoneId.systemDefault().toString());
+    }
 
     public void login() throws SQLException, IOException {
         String user_entry = username.getText();
@@ -54,7 +56,7 @@ public class HelloController implements Initializable {
             stage.close();
 
             FXMLLoader fxmlLoader = new FXMLLoader(ClientScheduler.class.getResource("main.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 640, 400);
+            Scene scene = new Scene(fxmlLoader.load(), 902, 554);
             stage.setScene(scene);
             stage.show();
         }

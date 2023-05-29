@@ -1,16 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.text.Text?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
-    <children>
-        <Text layoutX="198.0" layoutY="216.0" strokeType="OUTSIDE" strokeWidth="0.0" text="LOGGED IN">
-            <font>
-                <Font size="40.0" />
-            </font>
-        </Text>
-    </children>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="554.0" prefWidth="902.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <TableView layoutY="57.0" prefHeight="499.0" prefWidth="902.0">
+        <columns>
+          <TableColumn prefWidth="75.0" text="Appt ID" />
+          <TableColumn prefWidth="75.0" text="Title" />
+            <TableColumn prefWidth="75.0" text="Description" />
+            <TableColumn prefWidth="75.0" text="Location" />
+            <TableColumn prefWidth="75.0" text="Type" />
+            <TableColumn prefWidth="75.0" text="Start Time" />
+            <TableColumn prefWidth="75.0" text="End Time" />
+            <TableColumn prefWidth="75.0" text="Date" />
+            <TableColumn prefWidth="75.0" text="Created By" />
+            <TableColumn prefWidth="75.0" text="Last Updated By" />
+            <TableColumn prefWidth="75.0" text="Customer ID" />
+            <TableColumn prefWidth="75.0" text="User ID" />
+        </columns>
+      </TableView>
+      <DatePicker layoutX="692.0" layoutY="14.0" />
+      <AnchorPane prefHeight="57.0" prefWidth="665.0">
+         <children>
+            <RadioButton layoutX="220.0" layoutY="20.0" mnemonicParsing="false" text="View Customers">
+               <toggleGroup>
+                  <ToggleGroup fx:id="apptView" />
+               </toggleGroup>
+            </RadioButton>
+            <RadioButton layoutX="343.0" layoutY="20.0" mnemonicParsing="false" text="View by Week" toggleGroup="$apptView" />
+            <RadioButton layoutX="460.0" layoutY="20.0" mnemonicParsing="false" text="View by Month" toggleGroup="$apptView" />
+            <RadioButton layoutX="587.0" layoutY="20.0" mnemonicParsing="false" text="View All" toggleGroup="$apptView" />
+            <Label layoutX="14.0" layoutY="20.0" text="Appointment Schedule" />
+         </children>
+      </AnchorPane>
+   </children>
 </AnchorPane>

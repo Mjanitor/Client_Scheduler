@@ -1,18 +1,17 @@
 package Helper;
 
-import com.example.clientscheduler.ClientScheduler;
-import com.example.clientscheduler.HelloController;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import java.util.Optional;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.Scanner;
 
 public class ClientQuery {
+
     public static void select() throws SQLException {
         String sql = "SELECT * FROM USERS";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);
@@ -43,6 +42,19 @@ public class ClientQuery {
     }
 
     public static boolean login(String user, String pass) throws SQLException {
+        ResourceBundle rb;
+
+        Locale locale = Locale.getDefault();
+        System.out.println(locale.getClass());
+
+        if (locale.equals(Locale.FRANCE)) {
+            Locale.setDefault(new Locale("fr", "FR"));
+            rb = ResourceBundle.getBundle("com.example.clientscheduler.Nat_fr");
+        } else {
+            Locale.setDefault(new Locale("en", "US"));
+            rb = ResourceBundle.getBundle("com.example.clientscheduler.Nat_en");
+        }
+
         String sql = "SELECT User_Name, Password FROM USERS";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);
         ResultSet rs = ps.executeQuery();
@@ -58,16 +70,16 @@ public class ClientQuery {
         System.out.println(user + "  |  " + pass);
         if (success){
             Alert successful_login = new Alert(Alert.AlertType.CONFIRMATION);
-            successful_login.setTitle("Success!");
-            successful_login.setContentText("Your login has been successful");
+            successful_login.setTitle(rb.getString("Success!"));
+            successful_login.setContentText(rb.getString("successful"));
             successful_login.showAndWait();
 
 
         }
         else {
             Alert unsuccessful_login = new Alert(Alert.AlertType.ERROR);
-            unsuccessful_login.setTitle("Failed!");
-            unsuccessful_login.setContentText("Your login has been unsuccessful. Please try again.");
+            unsuccessful_login.setTitle(rb.getString("Failed!"));
+            unsuccessful_login.setContentText(rb.getString("unsuccessful") );
             unsuccessful_login.showAndWait();
         }
 
