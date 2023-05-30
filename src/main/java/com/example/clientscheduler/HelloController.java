@@ -46,7 +46,7 @@ public class HelloController implements Initializable {
         location.setText(ZoneId.systemDefault().toString());
     }
 
-    public void login() throws SQLException, IOException {
+    public void login() throws Exception {
         String user_entry = username.getText();
         String user_pw = password.getText();
 
@@ -56,7 +56,7 @@ public class HelloController implements Initializable {
             stage.close();
 
             FXMLLoader fxmlLoader = new FXMLLoader(ClientScheduler.class.getResource("main.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 902, 554);
+            Scene scene = new Scene(fxmlLoader.load(), 1323, 493);
             stage.setScene(scene);
             stage.show();
         }
