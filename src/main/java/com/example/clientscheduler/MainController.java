@@ -6,18 +6,13 @@ import java.sql.ResultSet;
 import java.util.ResourceBundle;
 
 import Helper.JDBC;
-import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
@@ -34,14 +29,9 @@ public class MainController implements Initializable {
     public Button modAppt;
     public Button addAppt;
     public Button logFiles;
-    //TABLE VIEW AND DATA
     private ObservableList<ObservableList> data;
-    @FXML
-    private TableView tableview;
-    //TABLE VIEW AND DATA
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public void buildTable() {
         data = FXCollections.observableArrayList();
         try {
             JDBC.openConnection();
@@ -94,5 +84,10 @@ public class MainController implements Initializable {
             e.printStackTrace();
             System.out.println("Error on Building Data");
         }
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        buildTable();
     }
 }
