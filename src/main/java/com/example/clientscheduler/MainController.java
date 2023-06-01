@@ -1,23 +1,31 @@
 package com.example.clientscheduler;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ResourceBundle;
 
+import Helper.ClientQuery;
 import Helper.JDBC;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.control.TableColumn.CellDataFeatures;
-import javafx.scene.control.TableView;
-import javafx.scene.control.ToggleGroup;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Callback;
+
+import java.util.concurrent.TimeUnit;
 
 public class MainController implements Initializable {
 
@@ -29,17 +37,37 @@ public class MainController implements Initializable {
     public Button modAppt;
     public Button addAppt;
     public Button logFiles;
+    public RadioButton viewCust;
+    public RadioButton viewWeek;
+    public RadioButton viewMonth;
+    public RadioButton viewAll;
     private ObservableList<ObservableList> data;
+
+    public void refresh() throws SQLException, IOException {
+        ClientQuery.update();
+        buildTable();
+        ClientQuery.select();
+        buildTable();
+    }
+
+    public void addAppt() {
+
+    }
 
     public void buildTable() {
         data = FXCollections.observableArrayList();
+        String SQL = "SELECT * from APPOINTMENTS";
         try {
             JDBC.openConnection();
-            //SQL FOR SELECTING ALL OF APPOINTMENTS
-            String SQL = "SELECT * from APPOINTMENTS";
+            if (viewCust.isSelected()) {
+                //SQL FOR SELECTING ALL OF CUSTOMERS
+                SQL = "SELECT * from APPOINTMENTS WHERE Type LIKE 'PLANNING SESSION'";
+            }
+
             //ResultSet
             PreparedStatement ps = JDBC.connection.prepareStatement(SQL);
             ResultSet rs = ps.executeQuery();
+            System.out.println("Column Count: " + rs.getMetaData().getColumnCount());
 
             /**
              * ********************************
@@ -91,3 +119,4 @@ public class MainController implements Initializable {
         buildTable();
     }
 }
+

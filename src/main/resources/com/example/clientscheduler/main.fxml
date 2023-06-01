@@ -10,18 +10,18 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="493.0" prefWidth="1323.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.clientscheduler.MainController">
    <children>
-      <TableView fx:id="tester" layoutX="-1.0" layoutY="56.0" prefHeight="371.0" prefWidth="1323.0" />
+      <TableView fx:id="tester" layoutX="-1.0" layoutY="56.0" prefHeight="600.0" prefWidth="1323.0" />
       <DatePicker layoutX="1139.0" layoutY="16.0" />
       <AnchorPane layoutX="327.0" prefHeight="57.0" prefWidth="665.0">
          <children>
-            <RadioButton layoutX="220.0" layoutY="20.0" mnemonicParsing="false" text="View Customers">
+            <RadioButton fx:id="viewCust" layoutX="220.0" layoutY="20.0" mnemonicParsing="false" text="View Customers">
                <toggleGroup>
                   <ToggleGroup fx:id="apptView" />
                </toggleGroup>
             </RadioButton>
-            <RadioButton layoutX="343.0" layoutY="20.0" mnemonicParsing="false" text="View by Week" toggleGroup="$apptView" />
-            <RadioButton layoutX="460.0" layoutY="20.0" mnemonicParsing="false" text="View by Month" toggleGroup="$apptView" />
-            <RadioButton layoutX="587.0" layoutY="20.0" mnemonicParsing="false" text="View All" toggleGroup="$apptView" />
+            <RadioButton fx:id="viewWeek" layoutX="343.0" layoutY="20.0" mnemonicParsing="false" text="View by Week" toggleGroup="$apptView" />
+            <RadioButton fx:id="viewMonth" layoutX="460.0" layoutY="20.0" mnemonicParsing="false" text="View by Month" toggleGroup="$apptView" />
+            <RadioButton fx:id="viewAll" layoutX="587.0" layoutY="20.0" mnemonicParsing="false" text="View All" toggleGroup="$apptView" />
             <Label layoutX="14.0" layoutY="20.0" text="Appointment Schedule" />
          </children>
       </AnchorPane>
@@ -31,7 +31,7 @@
             <Button fx:id="delAppt" layoutX="912.0" layoutY="23.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Delete Appointment" />
             <Button fx:id="modAppt" layoutX="587.0" layoutY="23.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Modify Appointment" />
             <Button fx:id="addAppt" layoutX="262.0" layoutY="23.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Add Appointment" />
-            <Button fx:id="logFiles" layoutX="14.0" layoutY="21.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="122.0" text="Log Files" />
+            <Button fx:id="logFiles" layoutX="14.0" layoutY="21.0" mnemonicParsing="false" onAction="#refresh" prefHeight="25.0" prefWidth="122.0" text="Log Files" />
          </children>
       </AnchorPane>
    </children>

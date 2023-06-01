@@ -1,5 +1,6 @@
 package Helper;
 
+import com.example.clientscheduler.MainController;
 import javafx.scene.control.Alert;
 
 import java.sql.PreparedStatement;
@@ -12,33 +13,27 @@ import java.util.Scanner;
 
 public class ClientQuery {
 
-    public static void select() throws SQLException {
-        String sql = "SELECT * FROM USERS";
+    public static String select() throws SQLException {
+        String sql = "SELECT * from APPOINTMENTS WHERE Type LIKE 'PLANNING SESSION'";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);
         ResultSet rs = ps.executeQuery();
 
-        Scanner myObj = new Scanner(System.in);
-        System.out.println("Enter Username");
-        String userInput = myObj.nextLine();
-        System.out.println("Enter Password");
-        String userPw = myObj.nextLine();
+        String title = null;
+        while (rs.next()) {
+            title = rs.getString("Title");
+            System.out.println(title);
+        }
 
-        boolean success = false;
-        while(rs.next()) {
-            int userId = rs.getInt("User_ID");
-            String userName = rs.getString("User_Name");
-            String password = rs.getString("Password");
-            if (userInput.equals(userName) && userPw.equals(password)) {
-                success = true;
-            }
-            System.out.println(userId + "  |  " + userName + "  |  " + password);
-        }
-        if (success){
-            System.out.println("Successful Login!");
-        }
-        else {
-            System.out.println("Failed Login!");
-        }
+        return title;
+    }
+
+    public static void update() throws SQLException {
+        String sql = "UPDATE APPOINTMENTS SET TITLE = ? WHERE Type = 'Planning Session'";
+        PreparedStatement ps = JDBC.connection.prepareStatement(sql);
+
+        ps.setString(1, "test");
+
+        ps.executeUpdate();
     }
 
     public static boolean login(String user, String pass) throws SQLException {

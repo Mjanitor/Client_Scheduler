@@ -15,6 +15,7 @@ import java.util.ResourceBundle;
 import Helper.ClientQuery;
 
 import java.time.ZoneId;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Controls the FXML elements for the main application window and includes methods and data types to act on that window.
@@ -47,10 +48,17 @@ public class HelloController implements Initializable {
     }
 
     public void login() throws Exception {
+        Stage stage = (Stage) login.getScene().getWindow();
+        stage.close();
+
+        FXMLLoader fxmlLoader = new FXMLLoader(ClientScheduler.class.getResource("main.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 1323, 493);
+        stage.setScene(scene);
+        stage.show();
         String user_entry = username.getText();
         String user_pw = password.getText();
 
-        boolean logged_in = ClientQuery.login(user_entry, user_pw);
+        /*boolean logged_in = ClientQuery.login(user_entry, user_pw);
         if (logged_in) {
             Stage stage = (Stage) login.getScene().getWindow();
             stage.close();
@@ -59,6 +67,6 @@ public class HelloController implements Initializable {
             Scene scene = new Scene(fxmlLoader.load(), 1323, 493);
             stage.setScene(scene);
             stage.show();
-        }
+        }*/
     }
 }
