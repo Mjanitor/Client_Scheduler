@@ -18,6 +18,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import java.util.concurrent.TimeUnit;
 
 public class MainController implements Initializable {
 
@@ -28,15 +29,20 @@ public class MainController implements Initializable {
     public Button delAppt;
     public Button modAppt;
     public Button addAppt;
+    public Button delCust;
+    public Button modCust;
+    public Button addCust;
     public Button logFiles;
     public RadioButton viewCust;
     public RadioButton viewWeek;
     public RadioButton viewMonth;
     public RadioButton viewAll;
+    public Label deletion;
     private ObservableList<ObservableList> data;
 
     public void refresh() throws Exception {
         buildTable();
+        deletion.setVisible(false);
     }
 
     public void addCust() throws Exception {
@@ -78,11 +84,17 @@ public class MainController implements Initializable {
             ps2.setObject(1, selection.get(0));
 
             ps2.executeUpdate();
+
             buildTable();
+
+            // Deletion Alert
+            deletion.setVisible(true);
         }
 
         catch (NullPointerException e) {
             System.out.println("Please select a customer to delete.");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -107,7 +119,21 @@ public class MainController implements Initializable {
         String SQL = "SELECT * FROM Appointments";
         try {
             if (viewCust.isSelected()) {
+                addCust.setVisible(true);
+                modCust.setVisible(true);
+                delCust.setVisible(true);
                 SQL = "SELECT * from CUSTOMERS";
+                addAppt.setVisible(false);
+                modAppt.setVisible(false);
+                delAppt.setVisible(false);
+            } else {
+                addAppt.setVisible(true);
+                modAppt.setVisible(true);
+                delAppt.setVisible(true);
+                SQL = "SELECT * FROM Appointments";
+                addCust.setVisible(false);
+                modCust.setVisible(false);
+                delCust.setVisible(false);
             }
 
             //ResultSet

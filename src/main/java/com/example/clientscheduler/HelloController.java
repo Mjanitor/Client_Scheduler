@@ -1,5 +1,6 @@
 package com.example.clientscheduler;
 
+import Helper.ClientQuery;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
@@ -48,19 +49,13 @@ public class HelloController implements Initializable {
     }
 
     public void login() throws Exception {
-        Stage stage = (Stage) login.getScene().getWindow();
-        stage.close();
-
-        FXMLLoader fxmlLoader = new FXMLLoader(ClientScheduler.class.getResource("main.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 1323, 493);
-        stage.setScene(scene);
-        stage.show();
-
-        /*String user_entry = username.getText();
+        String user_entry = username.getText();
         String user_pw = password.getText();
 
         boolean logged_in = ClientQuery.login(user_entry, user_pw);
-        if (logged_in) {
+        System.out.println(logged_in);
+
+        if (logged_in == true) {
             Stage stage = (Stage) login.getScene().getWindow();
             stage.close();
 
@@ -68,6 +63,6 @@ public class HelloController implements Initializable {
             Scene scene = new Scene(fxmlLoader.load(), 1323, 493);
             stage.setScene(scene);
             stage.show();
-        }*/
+        }
     }
 }

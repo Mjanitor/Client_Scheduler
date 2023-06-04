@@ -102,6 +102,7 @@ public class ClientQuery {
         ResultSet rs = ps.executeQuery();
 
         boolean success = false;
+
         while(rs.next()) {
             String userName = rs.getString("User_Name");
             String password = rs.getString("Password");
@@ -110,15 +111,13 @@ public class ClientQuery {
             }
         }
         System.out.println(user + "  |  " + pass);
-        if (success){
+        if (success == true){
             Alert successful_login = new Alert(Alert.AlertType.CONFIRMATION);
             successful_login.setTitle(rb.getString("Success!"));
             successful_login.setContentText(rb.getString("successful"));
             successful_login.showAndWait();
-
-
         }
-        else {
+        else if (success == false){
             Alert unsuccessful_login = new Alert(Alert.AlertType.ERROR);
             unsuccessful_login.setTitle(rb.getString("Failed!"));
             unsuccessful_login.setContentText(rb.getString("unsuccessful") );

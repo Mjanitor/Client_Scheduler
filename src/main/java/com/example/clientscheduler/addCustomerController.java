@@ -121,7 +121,7 @@ public class addCustomerController implements Initializable {
         String phone = custPhone.getText();
         String created = (String) dtf.format(now);
         String created_by = "admin"; //TODO
-        String updated = (String) dtf.format(now);
+        String updated = null;
         String updated_by = "admin"; //TODO
         String divID = rs.getString("division_id");
 
