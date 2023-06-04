@@ -127,6 +127,16 @@ public class addCustomerController implements Initializable {
 
         ClientQuery.addCust(ID, name, address, post, phone, created,
                 created_by, updated, updated_by, divID);
+
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("main.fxml"));
+            Scene addScene = new Scene(fxmlLoader.load(), 1323, 493);
+            Stage addStage = new Stage();
+            addStage.setScene(addScene);
+            addStage.show();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void onCustCancel (ActionEvent actionEvent) throws Exception {
@@ -148,7 +158,6 @@ public class addCustomerController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         String countries[] = {"USA", "UK", "Canada"};
         country.setItems(FXCollections.observableArrayList(countries));
-        //country.setItems(FXCollections.observableArrayList(countries));
 
         String sql_count = "SELECT * FROM customers";
         try {

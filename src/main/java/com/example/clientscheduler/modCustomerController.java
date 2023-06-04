@@ -103,17 +103,13 @@ public class modCustomerController implements Initializable {
         String sql = "SELECT division_id FROM first_level_divisions WHERE division = ?";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);
         ps.setString(1, division.getValue());
-        System.out.println(division.getValue());
         ResultSet rs = ps.executeQuery();
-        System.out.println(rs);
-        if (rs.next()) {
-            System.out.println("result!");
-        }
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
 
         int ID = count;
+        String divID = null;
         String name = custName.getText();
         String address = custAddress.getText();
         String post = custPost.getText();
@@ -122,10 +118,22 @@ public class modCustomerController implements Initializable {
         String created_by = "admin"; //TODO
         String updated = (String) dtf.format(now);
         String updated_by = "admin"; //TODO
-        String divID = rs.getString("division_id");
+        if (rs.next()) {
+            divID = rs.getString("division_id");
+        }
 
-        ClientQuery.addCust(ID, name, address, post, phone, created,
+        ClientQuery.modCust(ID, name, address, post, phone, created,
                 created_by, updated, updated_by, divID);
+
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("main.fxml"));
+            Scene addScene = new Scene(fxmlLoader.load(), 1323, 493);
+            Stage addStage = new Stage();
+            addStage.setScene(addScene);
+            addStage.show();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void onCustCancel (ActionEvent actionEvent) throws Exception {
@@ -145,10 +153,16 @@ public class modCustomerController implements Initializable {
 
     public void setCustomerItems(ArrayList<String> items) throws SQLException {
         // Getting Country and Division data
-        if (Integer.parseInt(items.get(9)) < 55) {
+        int div_ID = Integer.parseInt(items.get(9));
+        String sql = "SELECT * FROM FIRST_LEVEL_DIVISIONS WHERE Division_ID = ?";
+        PreparedStatement ps = JDBC.connection.prepareStatement(sql);
+        ps.setInt(1, div_ID);
+
+        ResultSet rs = ps.executeQuery();
+
+        if (div_ID < 55) {
             country.setValue("USA");
-            //addCustomerController.setDivision();
-        } else if (Integer.parseInt(items.get(9)) < 73) {
+        } else if (div_ID < 73) {
             country.setValue("Canada");
         } else {
             country.setValue("UK");
@@ -159,7 +173,32 @@ public class modCustomerController implements Initializable {
         custAddress.setText(items.get(2));
         custPost.setText(items.get(3));
         custPhone.setText(items.get(4));
-        division.setValue(items.get(0));
+
+        if (rs.next()) {
+            division.setValue(rs.getString("Division"));
+        }
+
+        // Populating Combobox selections
+        String countries[] = {"USA", "UK", "Canada"};
+        country.setItems(FXCollections.observableArrayList(countries));
+
+        String selectedCountry = String.valueOf(country.getValue());
+        sql = "SELECT * from FIRST_LEVEL_DIVISIONS WHERE COUNTRY_ID = 1";
+        ps = JDBC.connection.prepareStatement(sql);
+        rs = ps.executeQuery();
+
+        String arr[] = {};
+
+        ArrayList<String> usDivisions = new ArrayList<String>(Arrays.asList(arr));
+
+        while (rs.next()) {
+            usDivisions.add(rs.getString("Division"));
+        }
+        usDivisions.sort(null);
+        System.out.println(usDivisions);
+
+        division.setItems(FXCollections.observableArrayList(usDivisions));
+        division.setPromptText("Select State/Province");
     }
 
     @Override

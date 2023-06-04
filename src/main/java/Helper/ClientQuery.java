@@ -30,6 +30,26 @@ public class ClientQuery {
         ps.executeUpdate();
     }
 
+    public static void modCust(int ID, String name, String address, String post, String phone,
+                                String created, String created_by, String updated,
+                                String updated_by, String divID) throws SQLException {
+        String sql = "UPDATE customers SET customer_ID = ?, customer_name = ?, Address = ?, Postal_code = ?, Phone = ?, create_date = ?, created_by = ?, last_update = ?, last_updated_by = ?, division_id = ? WHERE customer_id = ?";
+        PreparedStatement ps = JDBC.connection.prepareStatement(sql);
+        ps.setInt(1, ID);
+        ps.setString(2, name);
+        ps.setString(3, address);
+        ps.setString(4, post);
+        ps.setString(5, phone);
+        ps.setString(6, created);
+        ps.setString(7, created_by);
+        ps.setString(8, updated);
+        ps.setString(9, updated_by);
+        ps.setString(10, divID);
+        ps.setInt(11, ID);
+
+        ps.executeUpdate();
+    }
+
     public static ArrayList<String> getCustomer(int id) throws SQLException {
         String sql = "SELECT * from customers WHERE CUSTOMER_ID = ?";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);
