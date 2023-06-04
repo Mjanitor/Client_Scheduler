@@ -19,7 +19,6 @@ public class ClientScheduler extends Application {
         ResourceBundle rb;
 
         Locale locale = Locale.getDefault();
-        System.out.println(locale.getClass());
 
         if (locale.equals(Locale.FRANCE)) {
             Locale.setDefault(new Locale("fr", "FR"));
@@ -33,7 +32,7 @@ public class ClientScheduler extends Application {
         fxmlLoader.setResources(rb);
 
         Scene scene = new Scene(fxmlLoader.load(), 640, 400);
-        stage.setTitle(rb.getString("Hello!"));
+        stage.setTitle(rb.getString("scheduler"));
         stage.setScene(scene);
         stage.show();
     }

@@ -5,17 +5,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
-
-import java.io.IOException;
 import java.net.URL;
-import java.sql.SQLException;
 import java.time.ZoneId;
+import java.util.Locale;
 import java.util.ResourceBundle;
-
-import Helper.ClientQuery;
-
-import java.time.ZoneId;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Controls the FXML elements for the main application window and includes methods and data types to act on that window.
@@ -29,7 +22,6 @@ public class HelloController implements Initializable {
     public TextField password;
     public Button login;
     public Label location;
-    ResourceBundle rb;
 
     /**
      * Loads all initial data pertaining to the Tables/Columns.
@@ -39,7 +31,15 @@ public class HelloController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        this.rb = rb;
+        Locale locale = Locale.getDefault();
+
+        if (locale.equals(Locale.FRANCE)) {
+            Locale.setDefault(new Locale("fr", "FR"));
+            rb = ResourceBundle.getBundle("com.example.clientscheduler.Nat_fr");
+        } else {
+            Locale.setDefault(new Locale("en", "US"));
+            rb = ResourceBundle.getBundle("com.example.clientscheduler.Nat_en");
+        }
 
         username.setPromptText(rb.getString("Username"));
         password.setPromptText(rb.getString("Password"));
@@ -55,10 +55,11 @@ public class HelloController implements Initializable {
         Scene scene = new Scene(fxmlLoader.load(), 1323, 493);
         stage.setScene(scene);
         stage.show();
-        String user_entry = username.getText();
+
+        /*String user_entry = username.getText();
         String user_pw = password.getText();
 
-        /*boolean logged_in = ClientQuery.login(user_entry, user_pw);
+        boolean logged_in = ClientQuery.login(user_entry, user_pw);
         if (logged_in) {
             Stage stage = (Stage) login.getScene().getWindow();
             stage.close();

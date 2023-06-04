@@ -8,10 +8,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-
-import javafx.scene.control.*;
 
 import java.net.URL;
 import java.sql.PreparedStatement;
@@ -23,10 +23,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
-public class addCustomerController implements Initializable {
+public class modCustomerController implements Initializable {
     @FXML
     public ComboBox<String> country;
-    @FXML
     public ComboBox<String> division;
     public Button custSave;
     public Button custCancel;
@@ -144,23 +143,33 @@ public class addCustomerController implements Initializable {
         }
     }
 
+    public void setCustomerItems(ArrayList<String> items) throws SQLException {
+        // Getting Country and Division data
+        if (Integer.parseInt(items.get(9)) < 55) {
+            country.setValue("USA");
+            //addCustomerController.setDivision();
+        } else if (Integer.parseInt(items.get(9)) < 73) {
+            country.setValue("Canada");
+        } else {
+            country.setValue("UK");
+        }
+
+        custID.setText(items.get(0));
+        custName.setText(items.get(1));
+        custAddress.setText(items.get(2));
+        custPost.setText(items.get(3));
+        custPhone.setText(items.get(4));
+        division.setValue(items.get(0));
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        String countries[] = {"USA", "UK", "Canada"};
-        country.setItems(FXCollections.observableArrayList(countries));
-        //country.setItems(FXCollections.observableArrayList(countries));
-
-        String sql_count = "SELECT * FROM customers";
         try {
-            PreparedStatement counter = JDBC.connection.prepareStatement(sql_count);
-            ResultSet count_set = counter.executeQuery();
-            while (count_set.next()) {
-                count++;
-            }
+            ArrayList<String> customer_items = ClientQuery.getCustomer(1);
+            System.out.println(customer_items);
+            setCustomerItems(customer_items);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
-        custID.setText(String.valueOf(count));
     }
 }

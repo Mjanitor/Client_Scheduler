@@ -1,30 +1,57 @@
 package Helper;
 
-import com.example.clientscheduler.MainController;
 import javafx.scene.control.Alert;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.Scanner;
 
 public class ClientQuery {
 
-    public static String select() throws SQLException {
-        String sql = "SELECT * from APPOINTMENTS WHERE Type LIKE 'PLANNING SESSION'";
+    public static void addCust(int ID, String name, String address, String post, String phone,
+                               String created, String created_by, String updated,
+                               String updated_by, String divID) throws SQLException {
+        String sql = "INSERT INTO customers VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);
+        ps.setInt(1, ID);
+        ps.setString(2, name);
+        ps.setString(3, address);
+        ps.setString(4, post);
+        ps.setString(5, phone);
+        ps.setString(6, created);
+        ps.setString(7, created_by);
+        ps.setString(8, updated);
+        ps.setString(9, updated_by);
+        ps.setString(10, divID);
+
+        ps.executeUpdate();
+    }
+
+    public static ArrayList<String> getCustomer(int id) throws SQLException {
+        String sql = "SELECT * from customers WHERE CUSTOMER_ID = ?";
+        PreparedStatement ps = JDBC.connection.prepareStatement(sql);
+        ps.setInt(1, id);
+
+        ArrayList<String> customerItems = new ArrayList<String>();
         ResultSet rs = ps.executeQuery();
 
-        String title = null;
-        while (rs.next()) {
-            title = rs.getString("Title");
-            System.out.println(title);
+        if (rs.next()) {
+            customerItems.add(rs.getString("Customer_ID"));
+            customerItems.add(rs.getString("Customer_Name"));
+            customerItems.add(rs.getString("Address"));
+            customerItems.add(rs.getString("Postal_Code"));
+            customerItems.add(rs.getString("Phone"));
+            customerItems.add(rs.getString("Create_Date"));
+            customerItems.add(rs.getString("Created_By"));
+            customerItems.add(rs.getString("Last_Update"));
+            customerItems.add(rs.getString("Last_Updated_By"));
+            customerItems.add(rs.getString("Division_ID"));
         }
 
-        return title;
+        return customerItems;
     }
 
     public static void update() throws SQLException {

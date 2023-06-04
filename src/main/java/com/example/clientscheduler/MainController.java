@@ -2,19 +2,14 @@ package com.example.clientscheduler;
 
 import java.io.IOException;
 import java.net.URL;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ResourceBundle;
 
-import Helper.ClientQuery;
 import Helper.JDBC;
-import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -22,16 +17,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import javafx.util.Callback;
-
-import java.util.concurrent.TimeUnit;
 
 public class MainController implements Initializable {
 
     public ToggleGroup apptView;
     @FXML
-    public TableView tester = new TableView();
+    public TableView tester;
     public Button logout;
     public Button delAppt;
     public Button modAppt;
@@ -43,31 +35,84 @@ public class MainController implements Initializable {
     public RadioButton viewAll;
     private ObservableList<ObservableList> data;
 
-    public void refresh() throws SQLException, IOException {
-        ClientQuery.update();
-        buildTable();
-        ClientQuery.select();
+    public void refresh() throws Exception {
         buildTable();
     }
 
-    public void addAppt() {
+    public void addCust() throws Exception {
+        Stage stage = (Stage) addAppt.getScene().getWindow();
+        stage.close();
 
+        FXMLLoader fxmlLoader = new FXMLLoader(ClientScheduler.class.getResource("addCustomer.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 1323, 493);
+        stage.setScene(scene);
+        stage.show();
     }
 
-    public void buildTable() {
-        data = FXCollections.observableArrayList();
-        String SQL = "SELECT * from APPOINTMENTS";
+    public void modCust() throws Exception {
+        Stage stage = (Stage) modAppt.getScene().getWindow();
+        stage.close();
+
+        FXMLLoader fxmlLoader = new FXMLLoader(ClientScheduler.class.getResource("modCustomer.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 1323, 493);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public void delCust() throws SQLException {
+        ObservableList selection = null;
+
         try {
-            JDBC.openConnection();
+            selection = (ObservableList) tester.getSelectionModel().getSelectedItem();
+
+            // Deleting related appointments
+            String sql = "DELETE FROM appointments WHERE Customer_ID = ?";
+            PreparedStatement ps = JDBC.connection.prepareStatement(sql);
+            ps.setObject(1, selection.get(0));
+
+            ps.executeUpdate();
+
+            // Deleting customer
+            sql = "DELETE FROM customers WHERE Customer_ID = ?";
+            PreparedStatement ps2 = JDBC.connection.prepareStatement(sql);
+            ps2.setObject(1, selection.get(0));
+
+            ps2.executeUpdate();
+            buildTable();
+        }
+
+        catch (NullPointerException e) {
+            System.out.println("Please select a customer to delete.");
+        }
+    }
+
+    public void logout() throws IOException {
+        Stage stage = (Stage) logout.getScene().getWindow();
+        //stage.setTitle(rb.getString("scheduler")); //TODO
+        stage.close();
+
+        FXMLLoader fxmlLoader = new FXMLLoader(ClientScheduler.class.getResource("hello-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 640, 400);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public void buildTable() throws SQLException {
+        // Clearing all columns as to not scale to infinite columns
+        tester.getItems().clear();
+        tester.getColumns().clear();
+
+        Connection c;
+        data = FXCollections.observableArrayList();
+        String SQL = "SELECT * FROM Appointments";
+        try {
             if (viewCust.isSelected()) {
-                //SQL FOR SELECTING ALL OF CUSTOMERS
-                SQL = "SELECT * from APPOINTMENTS WHERE Type LIKE 'PLANNING SESSION'";
+                SQL = "SELECT * from CUSTOMERS";
             }
 
             //ResultSet
-            PreparedStatement ps = JDBC.connection.prepareStatement(SQL);
-            ResultSet rs = ps.executeQuery();
-            System.out.println("Column Count: " + rs.getMetaData().getColumnCount());
+            c = JDBC.openConnection();
+            ResultSet rs = c.createStatement().executeQuery(SQL);
 
             /**
              * ********************************
@@ -85,7 +130,7 @@ public class MainController implements Initializable {
                 });
 
                 tester.getColumns().addAll(col);
-                System.out.println("Column [" + i + "] ");
+                //System.out.println("Column [" + i + "] ");
             }
 
             /**
@@ -100,7 +145,7 @@ public class MainController implements Initializable {
                     //Iterate Column
                     row.add(rs.getString(i));
                 }
-                System.out.println("Row [1] added " + row);
+                //System.out.println("Row [1] added " + row);
                 data.add(row);
 
             }
@@ -108,15 +153,20 @@ public class MainController implements Initializable {
             //FINALLY ADDED TO TableView
             tester.setItems(data);
 
-        } catch (Exception e) {
+        } catch(Exception e){
             e.printStackTrace();
             System.out.println("Error on Building Data");
         }
     }
 
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        buildTable();
+        try {
+            buildTable();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
 
