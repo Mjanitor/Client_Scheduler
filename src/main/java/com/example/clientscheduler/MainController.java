@@ -3,6 +3,14 @@ package com.example.clientscheduler;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.ResourceBundle;
 
 import Helper.JDBC;
@@ -13,6 +21,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.TableColumn.CellDataFeatures;
@@ -40,6 +49,8 @@ public class MainController implements Initializable {
     public Label deletion;
     private ObservableList<ObservableList> data;
 
+    private Parent root;
+
     public void refresh() throws Exception {
         buildTable();
         deletion.setVisible(false);
@@ -55,16 +66,34 @@ public class MainController implements Initializable {
         stage.show();
     }
 
+    /**
+     * DONE
+     * @throws Exception
+     */
     public void modCust() throws Exception {
+        ObservableList selection = (ObservableList) tester.getSelectionModel().getSelectedItem();
+        System.out.println(selection);
+
         Stage stage = (Stage) modAppt.getScene().getWindow();
         stage.close();
 
         FXMLLoader fxmlLoader = new FXMLLoader(ClientScheduler.class.getResource("modCustomer.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 1323, 493);
+        root = fxmlLoader.load();
+
+        modCustomerController modCustomerController = fxmlLoader.getController();
+        System.out.println("WERE HEREEEEEEE");
+        System.out.println("Selection 0: " + selection.get(0));
+        modCustomerController.setCustomer_ID(selection.get(0));
+
+        Scene scene = new Scene(root, 1323, 493);
         stage.setScene(scene);
         stage.show();
     }
 
+    /**
+     * DONE
+     * @throws SQLException
+     */
     public void delCust() throws SQLException {
         ObservableList selection = null;
 
@@ -98,6 +127,44 @@ public class MainController implements Initializable {
         }
     }
 
+    public void addAppt() throws Exception {
+        Stage stage = (Stage) addAppt.getScene().getWindow();
+        stage.close();
+
+        FXMLLoader fxmlLoader = new FXMLLoader(ClientScheduler.class.getResource("addAppointment.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 952, 673);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public void delAppt() throws SQLException {
+        {
+            ObservableList selection = null;
+
+            try {
+                selection = (ObservableList) tester.getSelectionModel().getSelectedItem();
+
+                // Deleting related appointments
+                String sql = "DELETE FROM appointments WHERE Appointment_ID = ?";
+                PreparedStatement ps = JDBC.connection.prepareStatement(sql);
+                ps.setInt(1, Integer.valueOf((String) selection.get(0)));
+
+                ps.executeUpdate();
+
+                buildTable();
+
+                // Deletion Alert
+                deletion.setVisible(true);
+            }
+
+            catch (NullPointerException e) {
+                System.out.println("Please select a customer to delete.");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     public void logout() throws IOException {
         Stage stage = (Stage) logout.getScene().getWindow();
         //stage.setTitle(rb.getString("scheduler")); //TODO
@@ -114,9 +181,17 @@ public class MainController implements Initializable {
         tester.getItems().clear();
         tester.getColumns().clear();
 
-        Connection c;
         data = FXCollections.observableArrayList();
         String SQL = "SELECT * FROM Appointments";
+
+        // Filtering by Month or Week
+        GregorianCalendar calendar = new GregorianCalendar();
+        LocalDate now = LocalDate.now();
+
+        int week = calendar.get(GregorianCalendar.WEEK_OF_MONTH);
+        int month = now.getMonthValue();
+        System.out.println("week: " + week);
+
         try {
             if (viewCust.isSelected()) {
                 addCust.setVisible(true);
@@ -126,7 +201,7 @@ public class MainController implements Initializable {
                 addAppt.setVisible(false);
                 modAppt.setVisible(false);
                 delAppt.setVisible(false);
-            } else {
+            } else if (viewAll.isSelected()){
                 addAppt.setVisible(true);
                 modAppt.setVisible(true);
                 delAppt.setVisible(true);
@@ -134,11 +209,67 @@ public class MainController implements Initializable {
                 addCust.setVisible(false);
                 modCust.setVisible(false);
                 delCust.setVisible(false);
+            } else if (viewMonth.isSelected()) {
+                addAppt.setVisible(true);
+                modAppt.setVisible(true);
+                delAppt.setVisible(true);
+
+                addCust.setVisible(false);
+                modCust.setVisible(false);
+                delCust.setVisible(false);
+                switch (month) {
+                    case 1: SQL = "SELECT * FROM appointments WHERE MONTH(START) = 1";
+                        break;
+                    case 2: SQL = "SELECT * FROM appointments WHERE MONTH(START) = 2";
+                        break;
+                    case 3: SQL = "SELECT * FROM appointments WHERE MONTH(START) = 3";
+                        break;
+                    case 4: SQL = "SELECT * FROM appointments WHERE MONTH(START) = 4";
+                        break;
+                    case 5: SQL = "SELECT * FROM appointments WHERE MONTH(START) = 5";
+                        break;
+                    case 6: SQL = "SELECT * FROM appointments WHERE MONTH(START) = 6";
+                        break;
+                    case 7: SQL = "SELECT * FROM appointments WHERE MONTH(START) = 7";
+                        break;
+                    case 8: SQL = "SELECT * FROM appointments WHERE MONTH(START) = 8";
+                        break;
+                    case 9: SQL = "SELECT * FROM appointments WHERE MONTH(START) = 9";
+                        break;
+                    case 10: SQL = "SELECT * FROM appointments WHERE MONTH(START) = 10";
+                        break;
+                    case 11: SQL = "SELECT * FROM appointments WHERE MONTH(START) = 11";
+                        break;
+                    case 12: SQL = "SELECT * FROM appointments WHERE MONTH(START) = 12";
+                        break;
+                }
+            } else if (viewWeek.isSelected()) {
+                addAppt.setVisible(true);
+                modAppt.setVisible(true);
+                delAppt.setVisible(true);
+                System.out.println("here");
+
+                addCust.setVisible(false);
+                modCust.setVisible(false);
+                delCust.setVisible(false);
+                switch (week) {
+                    case 1: SQL = "SELECT * FROM appointments WHERE WEEK(Start, 5) - WEEK(DATE_SUB(Start, INTERVAL DAYOFMONTH(Start) - 1 DAY), 5) + 1 = 1";
+                        break;
+                    case 2: SQL = "SELECT * FROM appointments WHERE WEEK(Start, 5) - WEEK(DATE_SUB(Start, INTERVAL DAYOFMONTH(Start) - 1 DAY), 5) + 1 = 2";
+                        break;
+                    case 3: SQL = "SELECT * FROM appointments WHERE WEEK(Start, 5) - WEEK(DATE_SUB(Start, INTERVAL DAYOFMONTH(Start) - 1 DAY), 5) + 1 = 3";
+                        break;
+                    case 4: SQL = "SELECT * FROM appointments WHERE WEEK(Start, 5) - WEEK(DATE_SUB(Start, INTERVAL DAYOFMONTH(Start) - 1 DAY), 5) + 1 = 4";
+                        break;
+                    case 5: SQL = "SELECT * FROM appointments WHERE WEEK(Start, 5) - WEEK(DATE_SUB(Start, INTERVAL DAYOFMONTH(Start) - 1 DAY), 5) + 1 = 5";
+                        break;
+                }
             }
 
-            //ResultSet
-            c = JDBC.openConnection();
-            ResultSet rs = c.createStatement().executeQuery(SQL);
+            PreparedStatement ps = JDBC.connection.prepareStatement(SQL);
+            System.out.println("SQL: " + SQL);
+            System.out.println("Prepared: " + ps);
+            ResultSet rs = ps.executeQuery(SQL);
 
             /**
              * ********************************
@@ -156,7 +287,6 @@ public class MainController implements Initializable {
                 });
 
                 tester.getColumns().addAll(col);
-                //System.out.println("Column [" + i + "] ");
             }
 
             /**
@@ -171,7 +301,6 @@ public class MainController implements Initializable {
                     //Iterate Column
                     row.add(rs.getString(i));
                 }
-                //System.out.println("Row [1] added " + row);
                 data.add(row);
 
             }

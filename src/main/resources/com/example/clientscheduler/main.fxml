@@ -33,9 +33,9 @@
       </AnchorPane>
       <AnchorPane layoutY="426.0" prefHeight="67.0" prefWidth="1323.0">
          <children>
-            <Button fx:id="addAppt" layoutX="262.0" layoutY="23.0" mnemonicParsing="false" onAction="#addCust" prefHeight="25.0" prefWidth="149.0" text="Add Appointment" />
+            <Button fx:id="addAppt" layoutX="262.0" layoutY="23.0" mnemonicParsing="false" onAction="#addAppt" prefHeight="25.0" prefWidth="149.0" text="Add Appointment" />
             <Button fx:id="logout" layoutX="1189.0" layoutY="23.0" mnemonicParsing="false" onAction="#logout" prefHeight="25.0" prefWidth="122.0" text="Logout" />
-            <Button fx:id="delAppt" layoutX="912.0" layoutY="23.0" mnemonicParsing="false" onAction="#delCust" prefHeight="25.0" prefWidth="149.0" text="Delete Appointment" />
+            <Button fx:id="delAppt" layoutX="912.0" layoutY="23.0" mnemonicParsing="false" onAction="#delAppt" prefHeight="25.0" prefWidth="149.0" text="Delete Appointment" />
             <Button fx:id="modAppt" layoutX="587.0" layoutY="23.0" mnemonicParsing="false" onAction="#modCust" prefHeight="25.0" prefWidth="149.0" text="Modify Appointment" />
             <Button fx:id="logFiles" layoutX="14.0" layoutY="21.0" mnemonicParsing="false" onAction="#refresh" prefHeight="25.0" prefWidth="122.0" text="Log Files" />
             <Button fx:id="addCust" layoutX="262.0" layoutY="23.0" mnemonicParsing="false" onAction="#addCust" prefHeight="25.0" prefWidth="149.0" text="Add Customer" visible="false" />

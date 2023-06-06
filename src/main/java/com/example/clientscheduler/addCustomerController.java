@@ -36,7 +36,9 @@ public class addCustomerController implements Initializable {
     public TextField custPost;
     public TextField custPhone;
 
-    int count = 1;
+    public static int count = 0;
+
+    public static String user_name;
 
     public void setCountry() throws SQLException {
         String selectedCountry = String.valueOf(country.getValue());
@@ -88,13 +90,16 @@ public class addCustomerController implements Initializable {
                 caDivisions.add(rs.getString("Division"));
             }
             caDivisions.sort(null);
-            System.out.println(caDivisions);
 
             division.setItems(FXCollections.observableArrayList(caDivisions));
             division.setPromptText("Select State/Province");
         }
         division.setPromptText("Select State/Province");
         System.out.println(division.getPromptText());
+    }
+
+    public void getUserName(String user) {
+        user_name = user;
     }
 
     public void onCustSave() throws SQLException {
@@ -104,9 +109,7 @@ public class addCustomerController implements Initializable {
         String sql = "SELECT division_id FROM first_level_divisions WHERE division = ?";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);
         ps.setString(1, division.getValue());
-        System.out.println(division.getValue());
         ResultSet rs = ps.executeQuery();
-        System.out.println(rs);
         if (rs.next()) {
             System.out.println("result!");
         }
@@ -120,9 +123,9 @@ public class addCustomerController implements Initializable {
         String post = custPost.getText();
         String phone = custPhone.getText();
         String created = (String) dtf.format(now);
-        String created_by = "admin"; //TODO
-        String updated = null;
-        String updated_by = "admin"; //TODO
+        String created_by = user_name;
+        String updated = (String) dtf.format(now);
+        String updated_by = user_name;
         String divID = rs.getString("division_id");
 
         ClientQuery.addCust(ID, name, address, post, phone, created,
@@ -156,6 +159,7 @@ public class addCustomerController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        count = 1;
         String countries[] = {"USA", "UK", "Canada"};
         country.setItems(FXCollections.observableArrayList(countries));
 
@@ -164,6 +168,7 @@ public class addCustomerController implements Initializable {
             PreparedStatement counter = JDBC.connection.prepareStatement(sql_count);
             ResultSet count_set = counter.executeQuery();
             while (count_set.next()) {
+                System.out.println(count);
                 count++;
             }
         } catch (SQLException e) {

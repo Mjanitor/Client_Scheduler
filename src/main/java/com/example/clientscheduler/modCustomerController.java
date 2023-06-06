@@ -3,6 +3,7 @@ package com.example.clientscheduler;
 import Helper.ClientQuery;
 import Helper.JDBC;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -34,7 +35,7 @@ public class modCustomerController implements Initializable {
     public TextField custAddress;
     public TextField custPost;
     public TextField custPhone;
-
+    public int customer_ID;
     int count = 1;
 
     public void setCountry() throws SQLException {
@@ -108,17 +109,33 @@ public class modCustomerController implements Initializable {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
 
-        int ID = count;
-        String divID = null;
-        String name = custName.getText();
-        String address = custAddress.getText();
-        String post = custPost.getText();
-        String phone = custPhone.getText();
-        String created = (String) dtf.format(now);
-        String created_by = "admin"; //TODO
-        String updated = (String) dtf.format(now);
-        String updated_by = "admin"; //TODO
-        if (rs.next()) {
+        int ID = 0;
+        String divID = "";
+        String name = "";
+        String address = "";
+        String post = "";
+        String phone = "";
+        String created = "";
+        String created_by = "";
+        String updated = "";
+        String updated_by = "";
+
+        sql = "SELECT * FROM customers WHERE CUSTOMER_ID = ?";
+        ps = JDBC.connection.prepareStatement(sql);
+        System.out.println("Final Customer ID: " + customer_ID);
+        ps.setInt(1, customer_ID);
+        rs = ps.executeQuery();
+
+        while (rs.next()) {
+            ID = customer_ID;
+            name = custName.getText();
+            address = custAddress.getText();
+            post = custPost.getText();
+            phone = custPhone.getText();
+            created = (String) dtf.format(now);
+            created_by = rs.getString("Created_By");
+            updated = (String) dtf.format(now);
+            updated_by = addCustomerController.user_name;
             divID = rs.getString("division_id");
         }
 
@@ -149,6 +166,14 @@ public class modCustomerController implements Initializable {
         } catch(Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void setCustomer_ID(Object ID) throws SQLException {
+        customer_ID = Integer.valueOf((String) ID);
+        System.out.println("First Customer_ID: " + customer_ID);
+        ArrayList<String> customer_items = ClientQuery.getCustomer(customer_ID); // TODO
+        System.out.println("Customer_Items: " + customer_items);
+        setCustomerItems(customer_items);
     }
 
     public void setCustomerItems(ArrayList<String> items) throws SQLException {
@@ -201,14 +226,6 @@ public class modCustomerController implements Initializable {
         division.setPromptText("Select State/Province");
     }
 
-    @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        try {
-            ArrayList<String> customer_items = ClientQuery.getCustomer(1);
-            System.out.println(customer_items);
-            setCustomerItems(customer_items);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

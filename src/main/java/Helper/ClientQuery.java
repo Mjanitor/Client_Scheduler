@@ -5,6 +5,7 @@ import javafx.scene.control.Alert;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -72,6 +73,30 @@ public class ClientQuery {
         }
 
         return customerItems;
+    }
+
+    public static void addAppt(int ID, String title, String description, String location, String type,
+                               LocalDate start, LocalDate end, String created,
+                               String created_by, String updated, String updated_by, String customer, String user, int contact) throws SQLException {
+        String sql = "INSERT INTO APPOINTMENTS VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        PreparedStatement ps = JDBC.connection.prepareStatement(sql);
+
+        ps.setInt(1, ID);
+        ps.setString(2, title);
+        ps.setString(3, description);
+        ps.setString(4, location);
+        ps.setString(5, type);
+        ps.setString(6, start.toString());
+        ps.setString(7, end.toString());
+        ps.setString(8, created);
+        ps.setString(9, created_by);
+        ps.setString(10, updated);
+        ps.setString(11, updated_by);
+        ps.setString(12, customer);
+        ps.setString(13, user);
+        ps.setInt(14, contact);
+
+        ps.executeUpdate();
     }
 
     public static void update() throws SQLException {

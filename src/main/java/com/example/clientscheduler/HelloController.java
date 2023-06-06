@@ -1,8 +1,10 @@
 package com.example.clientscheduler;
 
 import Helper.ClientQuery;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -23,6 +25,8 @@ public class HelloController implements Initializable {
     public TextField password;
     public Button login;
     public Label location;
+
+    private Parent root;
 
     /**
      * Loads all initial data pertaining to the Tables/Columns.
@@ -52,7 +56,8 @@ public class HelloController implements Initializable {
         String user_entry = username.getText();
         String user_pw = password.getText();
 
-        boolean logged_in = ClientQuery.login(user_entry, user_pw);
+        boolean logged_in = true;
+        //logged_in = ClientQuery.login(user_entry, user_pw);
         System.out.println(logged_in);
 
         if (logged_in == true) {
@@ -63,6 +68,13 @@ public class HelloController implements Initializable {
             Scene scene = new Scene(fxmlLoader.load(), 1323, 493);
             stage.setScene(scene);
             stage.show();
+
+            fxmlLoader = new FXMLLoader(ClientScheduler.class.getResource("addCustomer.fxml"));
+            root = fxmlLoader.load();
+
+            // Passing username to different controllers
+            addCustomerController addCustomerController = fxmlLoader.getController();
+            addCustomerController.getUserName(user_entry);
         }
     }
 }
