@@ -137,6 +137,26 @@ public class MainController implements Initializable {
         stage.show();
     }
 
+    public void modAppt() throws Exception {
+        ObservableList selection = (ObservableList) tester.getSelectionModel().getSelectedItem();
+        System.out.println(selection);
+
+        Stage stage = (Stage) modAppt.getScene().getWindow();
+        stage.close();
+
+        FXMLLoader fxmlLoader = new FXMLLoader(ClientScheduler.class.getResource("modAppt.fxml"));
+        root = fxmlLoader.load();
+
+        modApptController modApptController = fxmlLoader.getController();
+        System.out.println("WERE HEREEEEEEE");
+        System.out.println("Selection 0: " + selection.get(0));
+        modApptController.setApptID(selection.get(0));
+
+        Scene scene = new Scene(root, 952, 673);
+        stage.setScene(scene);
+        stage.show();
+    }
+
     public void delAppt() throws SQLException {
         {
             ObservableList selection = null;

@@ -177,6 +177,7 @@ public class modCustomerController implements Initializable {
     }
 
     public void setCustomerItems(ArrayList<String> items) throws SQLException {
+        System.out.println("Appt Items: " + items);
         // Getting Country and Division data
         int div_ID = Integer.parseInt(items.get(9));
         String sql = "SELECT * FROM FIRST_LEVEL_DIVISIONS WHERE Division_ID = ?";

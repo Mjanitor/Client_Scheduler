@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -51,6 +52,36 @@ public class ClientQuery {
         ps.executeUpdate();
     }
 
+    public static void modAppt(int ID, String title, String desc, String loc, String type,
+                               String start, String end, String create_date, String created_by, String updated,
+                               String updated_by, String custID, String userID, int contactID) throws SQLException {
+        String sql = "UPDATE appointments SET appointment_ID = ?, title = ?, description = ?, location = ?, type = ?," +
+                " start = ?, end = ?, create_date = ?, created_by = ?, last_update = ?, last_updated_by = ?," +
+                "customer_id = ?, user_id = ?, contact_id = ?  WHERE appointment_ID = ?";
+        PreparedStatement ps = JDBC.connection.prepareStatement(sql);
+
+        ps.setInt(1, ID);
+        ps.setString(2, title);
+        ps.setString(3, desc);
+        ps.setString(4, loc);
+        ps.setString(5, type);
+        ps.setString(6, start);
+        ps.setString(7, end);
+        ps.setString(8, create_date);
+        ps.setString(9, created_by);
+        ps.setString(10, updated);
+        ps.setString(11, updated_by);
+        ps.setString(12, custID);
+        ps.setString(13, userID);
+        ps.setInt(14, contactID);
+        ps.setInt(15, ID);
+
+        System.out.println("ID: " + ID);
+        System.out.println("Start: " + start);
+
+        ps.executeUpdate();
+    }
+
     public static ArrayList<String> getCustomer(int id) throws SQLException {
         String sql = "SELECT * from customers WHERE CUSTOMER_ID = ?";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);
@@ -75,8 +106,36 @@ public class ClientQuery {
         return customerItems;
     }
 
+    public static ArrayList<String> getAppt(int id) throws SQLException {
+        String sql = "SELECT * from appointments WHERE Appointment_ID = ?";
+        PreparedStatement ps = JDBC.connection.prepareStatement(sql);
+        ps.setInt(1, id);
+
+        ArrayList<String> apptItems = new ArrayList<String>();
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            apptItems.add(rs.getString("Appointment_ID"));
+            apptItems.add(rs.getString("Title"));
+            apptItems.add(rs.getString("Description"));
+            apptItems.add(rs.getString("Location"));
+            apptItems.add(rs.getString("Type"));
+            apptItems.add(rs.getString("Start"));
+            apptItems.add(rs.getString("End"));
+            apptItems.add(rs.getString("Create_Date"));
+            apptItems.add(rs.getString("Created_By"));
+            apptItems.add(rs.getString("Last_Update"));
+            apptItems.add(rs.getString("Last_Updated_By"));
+            apptItems.add(rs.getString("Customer_ID"));
+            apptItems.add(rs.getString("User_ID"));
+            apptItems.add(rs.getString("Contact_ID"));
+        }
+
+        return apptItems;
+    }
+
     public static void addAppt(int ID, String title, String description, String location, String type,
-                               LocalDate start, LocalDate end, String created,
+                               String start, String end, String created,
                                String created_by, String updated, String updated_by, String customer, String user, int contact) throws SQLException {
         String sql = "INSERT INTO APPOINTMENTS VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);

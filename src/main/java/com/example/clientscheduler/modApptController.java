@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.*;
 
-public class addApptController implements Initializable {
+public class modApptController implements Initializable {
     public TextField apptID;
     public TextField apptType;
     public TextField apptLoc;
@@ -42,6 +42,16 @@ public class addApptController implements Initializable {
     public static String user_name;
     public Button apptSave;
     public Button apptCancel;
+
+    public int modApptID;
+
+    public void setApptID(Object ID) throws SQLException {
+        modApptID = Integer.valueOf((String) ID);
+        System.out.println("First Appointment ID: " + modApptID);
+        ArrayList<String> appt_items = ClientQuery.getAppt(modApptID); // TODO
+        System.out.println("Appointment_Items: " + appt_items);
+        setApptItems(appt_items);
+    }
 
     public void onApptSave() throws Exception {
 
@@ -79,14 +89,15 @@ public class addApptController implements Initializable {
         // Converting contacts to values
         switch ((String) apptContact.getValue()) {
             case "Anika Costa": contact = 1;
-            break;
+                break;
             case "Daniel Garcia": contact = 2;
-            break;
+                break;
             case "Li Lee": contact = 3;
-            break;
+                break;
         }
+        System.out.println("Mod Internal Start: " + start);
 
-        ClientQuery.addAppt(ID, title, description, location, type,
+        ClientQuery.modAppt(ID, title, description, location, type,
                 start, end, created, created_by, updated, updated_by, customer, user, contact);
 
         Stage stage = (Stage) apptSave.getScene().getWindow();
@@ -118,10 +129,44 @@ public class addApptController implements Initializable {
         }
     }
 
+    public void setApptItems(ArrayList<String> items) throws SQLException {
+        // Getting date and time for appointment
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        LocalDateTime appt_time = LocalDateTime.parse(items.get(5), dtf);
+
+        LocalDate date = appt_time.toLocalDate();
+        LocalTime time = appt_time.toLocalTime();
+
+        apptID.setText(items.get(0));
+        count = Integer.valueOf(apptID.getText());
+        apptTitle.setText(items.get(1));
+        apptDescr.setText(items.get(2));
+        apptLoc.setText(items.get(3));
+        apptType.setText(items.get(4));;
+        apptStart.setValue(date);
+        apptEnd.setValue(date);
+        apptStartTime.setText(time.format(timeFormatter));
+        apptEndTime.setText(time.format(timeFormatter));
+
+        apptCust.setText(items.get(11));
+        apptUser.setText(items.get(12));
+
+        // Converting contacts to values
+        switch (items.get(13)) {
+            case "1": apptContact.setValue("Anika Costa");;
+                break;
+            case "2": apptContact.setValue("Daniel Garcia");;
+                break;
+            case "3": apptContact.setValue("Li Lee");;
+                break;
+        }
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         user_name = addCustomerController.user_name;
-        count = 1;
+        //count = 1;
         String sql = "SELECT * from contacts";
         try {
             PreparedStatement ps = JDBC.connection.prepareStatement(sql);
