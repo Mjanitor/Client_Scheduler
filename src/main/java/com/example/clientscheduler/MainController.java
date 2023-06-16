@@ -3,13 +3,8 @@ package com.example.clientscheduler;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAdjuster;
-import java.time.temporal.TemporalAdjusters;
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.ResourceBundle;
 
@@ -27,7 +22,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import java.util.concurrent.TimeUnit;
+
+import java.util.TimeZone;
 
 public class MainController implements Initializable {
 
@@ -41,19 +37,31 @@ public class MainController implements Initializable {
     public Button delCust;
     public Button modCust;
     public Button addCust;
-    public Button logFiles;
+    public Button reports;
     public RadioButton viewCust;
     public RadioButton viewWeek;
     public RadioButton viewMonth;
     public RadioButton viewAll;
     public Label deletion;
+    public Label selectionError;
     private ObservableList<ObservableList> data;
 
     private Parent root;
 
     public void refresh() throws Exception {
-        buildTable();
+        buildTable.dynamicTable();
         deletion.setVisible(false);
+        selectionError.setVisible(false);
+    }
+
+    public void onReports() throws IOException {
+        Stage stage = (Stage) reports.getScene().getWindow();
+        stage.close();
+
+        FXMLLoader fxmlLoader = new FXMLLoader(ClientScheduler.class.getResource("reports.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 1323, 493);
+        stage.setScene(scene);
+        stage.show();
     }
 
     public void addCust() throws Exception {
@@ -72,7 +80,6 @@ public class MainController implements Initializable {
      */
     public void modCust() throws Exception {
         ObservableList selection = (ObservableList) tester.getSelectionModel().getSelectedItem();
-        System.out.println(selection);
 
         Stage stage = (Stage) modAppt.getScene().getWindow();
         stage.close();
@@ -81,8 +88,6 @@ public class MainController implements Initializable {
         root = fxmlLoader.load();
 
         modCustomerController modCustomerController = fxmlLoader.getController();
-        System.out.println("WERE HEREEEEEEE");
-        System.out.println("Selection 0: " + selection.get(0));
         modCustomerController.setCustomer_ID(selection.get(0));
 
         Scene scene = new Scene(root, 1323, 493);
@@ -114,7 +119,7 @@ public class MainController implements Initializable {
 
             ps2.executeUpdate();
 
-            buildTable();
+            buildTable.dynamicTable();
 
             // Deletion Alert
             deletion.setVisible(true);
@@ -138,8 +143,12 @@ public class MainController implements Initializable {
     }
 
     public void modAppt() throws Exception {
-        ObservableList selection = (ObservableList) tester.getSelectionModel().getSelectedItem();
-        System.out.println(selection);
+        ObservableList selection = null;
+        try {
+            selection = (ObservableList) tester.getSelectionModel().getSelectedItem();
+        } catch (NullPointerException e) {
+            selectionError.setVisible(true);
+        }
 
         Stage stage = (Stage) modAppt.getScene().getWindow();
         stage.close();
@@ -148,8 +157,6 @@ public class MainController implements Initializable {
         root = fxmlLoader.load();
 
         modApptController modApptController = fxmlLoader.getController();
-        System.out.println("WERE HEREEEEEEE");
-        System.out.println("Selection 0: " + selection.get(0));
         modApptController.setApptID(selection.get(0));
 
         Scene scene = new Scene(root, 952, 673);
@@ -171,7 +178,7 @@ public class MainController implements Initializable {
 
                 ps.executeUpdate();
 
-                buildTable();
+                buildTable.dynamicTable();
 
                 // Deletion Alert
                 deletion.setVisible(true);
@@ -187,16 +194,20 @@ public class MainController implements Initializable {
 
     public void logout() throws IOException {
         Stage stage = (Stage) logout.getScene().getWindow();
-        //stage.setTitle(rb.getString("scheduler")); //TODO
+        stage.setTitle("Client Scheduler");
         stage.close();
 
-        FXMLLoader fxmlLoader = new FXMLLoader(ClientScheduler.class.getResource("hello-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(ClientScheduler.class.getResource("login.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 640, 400);
         stage.setScene(scene);
         stage.show();
     }
 
-    public void buildTable() throws SQLException {
+    Table buildTable = () -> {String local = TimeZone.getDefault().getDisplayName().toString();
+        if (local.equals("Eastern Standard Time")) {
+            local = "America/New_York";
+        }
+
         // Clearing all columns as to not scale to infinite columns
         tester.getItems().clear();
         tester.getColumns().clear();
@@ -210,7 +221,6 @@ public class MainController implements Initializable {
 
         int week = calendar.get(GregorianCalendar.WEEK_OF_MONTH);
         int month = now.getMonthValue();
-        System.out.println("week: " + week);
 
         try {
             if (viewCust.isSelected()) {
@@ -233,7 +243,7 @@ public class MainController implements Initializable {
                 addAppt.setVisible(true);
                 modAppt.setVisible(true);
                 delAppt.setVisible(true);
-
+                SQL = "SELECT * FROM Appointments";
                 addCust.setVisible(false);
                 modCust.setVisible(false);
                 delCust.setVisible(false);
@@ -267,8 +277,7 @@ public class MainController implements Initializable {
                 addAppt.setVisible(true);
                 modAppt.setVisible(true);
                 delAppt.setVisible(true);
-                System.out.println("here");
-
+                SQL = "SELECT * FROM Appointments";
                 addCust.setVisible(false);
                 modCust.setVisible(false);
                 delCust.setVisible(false);
@@ -287,8 +296,6 @@ public class MainController implements Initializable {
             }
 
             PreparedStatement ps = JDBC.connection.prepareStatement(SQL);
-            System.out.println("SQL: " + SQL);
-            System.out.println("Prepared: " + ps);
             ResultSet rs = ps.executeQuery(SQL);
 
             /**
@@ -300,9 +307,25 @@ public class MainController implements Initializable {
                 //We are using non property style for making dynamic table
                 final int j = i;
                 TableColumn col = new TableColumn(rs.getMetaData().getColumnName(i + 1));
+                String finalSQL = SQL;
+                int finalI = i;
                 col.setCellValueFactory(new Callback<CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
                     public ObservableValue<String> call(CellDataFeatures<ObservableList, String> param) {
+
+                        // Converting Time Zone
+                        if ((finalI == 5) || (finalI == 6 && finalSQL == "SELECT * FROM Appointments") || (finalI == 7) || (finalI == 9 && finalSQL == "SELECT * FROM Appointments")) {
+                            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                            LocalDateTime date_time = LocalDateTime.parse((CharSequence) param.getValue().get(finalI), dtf);
+
+                            LocalDate date = date_time.toLocalDate();
+                            LocalTime local_time = date_time.toLocalTime();
+
+                            String converted_time = convertToLocal(local_time, date);
+
+                            return new SimpleStringProperty(converted_time);
+                        }
                         return new SimpleStringProperty(param.getValue().get(j).toString());
+
                     }
                 });
 
@@ -331,17 +354,59 @@ public class MainController implements Initializable {
         } catch(Exception e){
             e.printStackTrace();
             System.out.println("Error on Building Data");
+        }};
+
+    public static String convertToUTC(String input_time, LocalDate date) {
+        LocalTime time = LocalTime.parse(input_time);
+
+        LocalDateTime combined = LocalDateTime.of(date, time);
+
+        ZonedDateTime combinedZoned = combined.atZone(ZoneId.systemDefault());
+        ZonedDateTime finalCombined = combinedZoned.withZoneSameInstant(ZoneId.of("UTC"));
+
+        String combined_as_string = finalCombined.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:00"));
+
+        return combined_as_string;
+    }
+
+    public static String convertToEST(String input_time, LocalDate date) {
+        LocalTime time = LocalTime.parse(input_time);
+
+        LocalDateTime combined = LocalDateTime.of(date, time);
+
+        ZonedDateTime local_time = combined.atZone(ZoneId.systemDefault());
+        ZonedDateTime est_time = local_time.withZoneSameInstant(ZoneId.of("America/New_York"));
+        System.out.println("Final Combined: " + est_time);
+
+        String combined_as_string = est_time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:00"));
+
+        return combined_as_string;
+    }
+
+     public static String convertToLocal(LocalTime input_time, LocalDate date) {
+        LocalDateTime combined = LocalDateTime.of(date, input_time);
+
+        // Default Time
+        ZonedDateTime combinedZoned = combined.atZone(ZoneId.of("UTC"));
+        ZonedDateTime finalCombined = combinedZoned.withZoneSameInstant(ZoneId.systemDefault());
+
+        String combined_as_string = finalCombined.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:00"));
+
+        return combined_as_string;
+    }
+
+    public static boolean isOverlapping(java.util.Date start1, java.util.Date end1, java.util.Date start2, java.util.Date end2) {
+        if (start1.getDate() != start2.getDate()) {
+            return false;
+        } else {
+            return (start1.before(end2) && start2.before(end1));
         }
     }
 
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        try {
-            buildTable();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        buildTable.dynamicTable();
     }
 }
 

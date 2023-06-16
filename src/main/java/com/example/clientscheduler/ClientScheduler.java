@@ -28,7 +28,7 @@ public class ClientScheduler extends Application {
             rb = ResourceBundle.getBundle("com.example.clientscheduler.Nat_en");
         }
 
-        FXMLLoader fxmlLoader = new FXMLLoader(ClientScheduler.class.getResource("hello-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(ClientScheduler.class.getResource("login.fxml"));
         fxmlLoader.setResources(rb);
 
         Scene scene = new Scene(fxmlLoader.load(), 640, 400);

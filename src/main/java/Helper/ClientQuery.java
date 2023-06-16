@@ -1,5 +1,6 @@
 package Helper;
 
+import com.example.clientscheduler.MainController;
 import javafx.scene.control.Alert;
 
 import java.sql.PreparedStatement;
@@ -7,9 +8,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class ClientQuery {
 
@@ -52,11 +53,35 @@ public class ClientQuery {
         ps.executeUpdate();
     }
 
+    public static void addAppt(int ID, String title, String description, String location, String type,
+                               String start, String end, String created,
+                               String created_by, String updated, String updated_by, int customer, String user, int contact) throws SQLException {
+        String sql = "INSERT INTO APPOINTMENTS VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        PreparedStatement ps = JDBC.connection.prepareStatement(sql);
+
+        ps.setInt(1, ID);
+        ps.setString(2, title);
+        ps.setString(3, description);
+        ps.setString(4, location);
+        ps.setString(5, type);
+        ps.setString(6, start);
+        ps.setString(7, end);
+        ps.setString(8, created);
+        ps.setString(9, created_by);
+        ps.setString(10, updated);
+        ps.setString(11, updated_by);
+        ps.setInt(12, customer);
+        ps.setString(13, user);
+        ps.setInt(14, contact);
+
+        ps.executeUpdate();
+    }
+
     public static void modAppt(int ID, String title, String desc, String loc, String type,
-                               String start, String end, String create_date, String created_by, String updated,
-                               String updated_by, String custID, String userID, int contactID) throws SQLException {
+                               String start, String end, String created_by, String updated,
+                               String updated_by, int custID, String userID, int contactID) throws SQLException {
         String sql = "UPDATE appointments SET appointment_ID = ?, title = ?, description = ?, location = ?, type = ?," +
-                " start = ?, end = ?, create_date = ?, created_by = ?, last_update = ?, last_updated_by = ?," +
+                " start = ?, end = ?, last_update = ?, last_updated_by = ?," +
                 "customer_id = ?, user_id = ?, contact_id = ?  WHERE appointment_ID = ?";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);
 
@@ -67,14 +92,13 @@ public class ClientQuery {
         ps.setString(5, type);
         ps.setString(6, start);
         ps.setString(7, end);
-        ps.setString(8, create_date);
-        ps.setString(9, created_by);
-        ps.setString(10, updated);
-        ps.setString(11, updated_by);
-        ps.setString(12, custID);
-        ps.setString(13, userID);
-        ps.setInt(14, contactID);
-        ps.setInt(15, ID);
+        ps.setString(8, updated);
+        ps.setString(9, updated_by);
+        ps.setInt(10, custID);
+        ps.setString(11, userID);
+        ps.setInt(12, contactID);
+
+        ps.setInt(13, ID);
 
         System.out.println("ID: " + ID);
         System.out.println("Start: " + start);
@@ -114,14 +138,29 @@ public class ClientQuery {
         ArrayList<String> apptItems = new ArrayList<String>();
         ResultSet rs = ps.executeQuery();
 
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime appt_start = null;
+        LocalDateTime appt_end = null;
+
         if (rs.next()) {
+            appt_start = LocalDateTime.parse(rs.getString(6), dtf);
+            appt_end = LocalDateTime.parse(rs.getString(7), dtf);
+            LocalDate date = appt_start.toLocalDate();
+            LocalTime time = appt_start.toLocalTime();
+
+            String start = MainController.convertToLocal(time, date);
+            date = appt_end.toLocalDate();
+            time = appt_end.toLocalTime();
+
+            String end = MainController.convertToLocal(time, date);
+
             apptItems.add(rs.getString("Appointment_ID"));
             apptItems.add(rs.getString("Title"));
             apptItems.add(rs.getString("Description"));
             apptItems.add(rs.getString("Location"));
             apptItems.add(rs.getString("Type"));
-            apptItems.add(rs.getString("Start"));
-            apptItems.add(rs.getString("End"));
+            apptItems.add(start);
+            apptItems.add(end);
             apptItems.add(rs.getString("Create_Date"));
             apptItems.add(rs.getString("Created_By"));
             apptItems.add(rs.getString("Last_Update"));
@@ -129,33 +168,24 @@ public class ClientQuery {
             apptItems.add(rs.getString("Customer_ID"));
             apptItems.add(rs.getString("User_ID"));
             apptItems.add(rs.getString("Contact_ID"));
+            System.out.println("Internal appt items: " + apptItems);
         }
 
         return apptItems;
     }
 
-    public static void addAppt(int ID, String title, String description, String location, String type,
-                               String start, String end, String created,
-                               String created_by, String updated, String updated_by, String customer, String user, int contact) throws SQLException {
-        String sql = "INSERT INTO APPOINTMENTS VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    public static Dictionary<String, String> getApptTimes() throws SQLException {
+        String sql = "SELECT Start, End from appointments";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);
+        Dictionary<String, String> dict = new Hashtable<>();
+        ResultSet rs = ps.executeQuery();
 
-        ps.setInt(1, ID);
-        ps.setString(2, title);
-        ps.setString(3, description);
-        ps.setString(4, location);
-        ps.setString(5, type);
-        ps.setString(6, start.toString());
-        ps.setString(7, end.toString());
-        ps.setString(8, created);
-        ps.setString(9, created_by);
-        ps.setString(10, updated);
-        ps.setString(11, updated_by);
-        ps.setString(12, customer);
-        ps.setString(13, user);
-        ps.setInt(14, contact);
+        while (rs.next()) {
+            dict.put(rs.getString("Start"), rs.getString("End"));
+        }
 
-        ps.executeUpdate();
+        System.out.println("Dict: " + dict);
+        return dict;
     }
 
     public static void update() throws SQLException {
@@ -201,12 +231,7 @@ public class ClientQuery {
             successful_login.setContentText(rb.getString("successful"));
             successful_login.showAndWait();
         }
-        else if (success == false){
-            Alert unsuccessful_login = new Alert(Alert.AlertType.ERROR);
-            unsuccessful_login.setTitle(rb.getString("Failed!"));
-            unsuccessful_login.setContentText(rb.getString("unsuccessful") );
-            unsuccessful_login.showAndWait();
-        }
+
 
         return success;
     }
