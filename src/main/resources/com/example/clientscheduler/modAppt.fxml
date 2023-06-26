@@ -6,8 +6,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
-
 <?import javafx.scene.text.Font?>
+
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="673.0" prefWidth="952.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.clientscheduler.modApptController">
    <children>
       <TextField fx:id="apptID" disable="true" layoutX="167.0" layoutY="120.0" prefHeight="25.0" prefWidth="211.0" />
@@ -18,7 +18,7 @@
       <ComboBox fx:id="apptContact" layoutX="167.0" layoutY="303.0" prefHeight="25.0" prefWidth="211.0" />
       <ComboBox fx:id="apptCust" layoutX="167.0" layoutY="337.0" prefHeight="25.0" prefWidth="211.0" />
       <DatePicker fx:id="apptStart" layoutX="167.0" layoutY="410.0" prefHeight="25.0" prefWidth="211.0" />
-      <TextField fx:id="apptUser" layoutX="167.0" layoutY="374.0" prefHeight="25.0" prefWidth="211.0" />
+      <TextField fx:id="apptUser" disable="true" layoutX="167.0" layoutY="374.0" prefHeight="25.0" prefWidth="211.0" />
       <TextField fx:id="apptStartTime" layoutX="167.0" layoutY="448.0" prefHeight="25.0" prefWidth="211.0" />
       <DatePicker fx:id="apptEnd" disable="true" layoutX="576.0" layoutY="410.0" prefHeight="25.0" prefWidth="211.0" />
       <TextField fx:id="apptEndTime" layoutX="576.0" layoutY="448.0" prefHeight="25.0" prefWidth="211.0" />
@@ -28,7 +28,7 @@
       <Label layoutX="44.0" layoutY="341.0" prefHeight="17.0" prefWidth="97.0" text="Customer ID" textAlignment="CENTER" />
       <Label layoutX="44.0" layoutY="452.0" prefHeight="17.0" prefWidth="97.0" text="Start Time" textAlignment="CENTER" />
       <Label layoutX="44.0" layoutY="414.0" prefHeight="17.0" prefWidth="97.0" text="Start Date" textAlignment="CENTER" />
-      <Label layoutX="44.0" layoutY="378.0" prefHeight="17.0" prefWidth="97.0" text="User ID" textAlignment="CENTER" />
+      <Label layoutX="44.0" layoutY="378.0" prefHeight="17.0" prefWidth="97.0" text="Username" textAlignment="CENTER" />
       <Label layoutX="44.0" layoutY="231.0" prefHeight="17.0" prefWidth="97.0" text="Location" textAlignment="CENTER" />
       <Label layoutX="44.0" layoutY="269.0" prefHeight="17.0" prefWidth="97.0" text="Type" textAlignment="CENTER" />
       <Label layoutX="44.0" layoutY="307.0" prefHeight="17.0" prefWidth="97.0" text="Contact ID" textAlignment="CENTER" />
@@ -41,5 +41,12 @@
             <Font size="15.0" />
          </font>
       </Label>
+      <Label fx:id="existing_appt" layoutX="444.0" layoutY="265.0" text="There is an existing appointment during that time.  Please try another time." textFill="RED" visible="false">
+         <font>
+            <Font size="15.0" />
+         </font>
+      </Label>
+      <Label layoutX="220.0" layoutY="473.0" prefHeight="17.0" prefWidth="105.0" text="(Format: hh:mm:ss)" />
+      <Label layoutX="630.0" layoutY="473.0" prefHeight="17.0" prefWidth="105.0" text="(Format: hh:mm:ss)" />
    </children>
 </AnchorPane>

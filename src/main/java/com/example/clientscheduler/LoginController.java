@@ -7,21 +7,15 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.shape.Path;
 import javafx.stage.Stage;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.io.File;
-import java.io.PrintWriter.*;
-import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
@@ -30,12 +24,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-/**
- * Controls the FXML elements for the main application window and includes methods and data types to act on that window.
- *
- * FUTURE ENHANCEMENT: One thing that wasn't asked of me but would be cool to implement is filtering without having to input the "enter" key.  I think it's much sleeker to have
- your results filter as you type, but the way it is now is okay.  That's just the thing that most jumped out at me when going through the functionality.
- */
 public class LoginController implements Initializable {
 
     public TextField username;
@@ -43,30 +31,33 @@ public class LoginController implements Initializable {
     public Button loginButton;
     public Label location;
     public Label bad_pw;
+    public Label timeZone;
+    public static boolean french;
 
     private Parent root;
 
-    /**
-     * Loads all initial data pertaining to the Tables/Columns.
-     *
-     * @param url The URL, if any, to pull data from
-     * @param rb Any included resources
-     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         Locale locale = Locale.getDefault();
+        System.out.println(locale);
 
-        if (locale.equals(Locale.FRANCE)) {
+        if (locale.equals(Locale.FRANCE) || french) {
             Locale.setDefault(new Locale("fr", "FR"));
             rb = ResourceBundle.getBundle("com.example.clientscheduler.Nat_fr");
+            french = true;
         } else {
             Locale.setDefault(new Locale("en", "US"));
             rb = ResourceBundle.getBundle("com.example.clientscheduler.Nat_en");
+            french = false;
         }
+
+        System.out.println(french);
 
         username.setPromptText(rb.getString("Username"));
         password.setPromptText(rb.getString("Password"));
         loginButton.setText(rb.getString("Login"));
+        timeZone.setText(rb.getString("timezone"));
+        bad_pw.setText(rb.getString("login_failure"));
         location.setText(ZoneId.systemDefault().toString());
     }
 
@@ -75,7 +66,6 @@ public class LoginController implements Initializable {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalTime now = LocalTime.now();
         String formatted_now = timeFormatter.format(now);
-        System.out.println("Current Time: " + formatted_now);
 
         String sql = "Select * FROM APPOINTMENTS";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);
@@ -101,7 +91,7 @@ public class LoginController implements Initializable {
             Date date2 = sdf.parse(time.format(timeFormatter));
 
             long time_difference = (date2.getTime() - date1.getTime());
-            if (time_difference <= 900000 && time_difference >= 0 && upcoming == false) {
+            if ((time_difference <= 900000) && (time_difference >= 0 && upcoming == false) && (date2.getDate() == date1.getDate())) {
                 upcoming = true;
                 appt_id = rs.getString(1);
                 appt_date = date.toString();
@@ -130,8 +120,8 @@ public class LoginController implements Initializable {
         String user_pw = password.getText();
 
         // Change these two lines to log in
-        boolean logged_in = true;
-        //logged_in = ClientQuery.login(user_entry, user_pw);
+        boolean logged_in = false;
+        logged_in = ClientQuery.login(user_entry, user_pw);
 
         String filename = "login_activity.txt", item;
 
@@ -148,12 +138,15 @@ public class LoginController implements Initializable {
                 e.printStackTrace();
             }
 
+            Locale.setDefault(new Locale("en", "US"));
+
             Stage stage = (Stage) loginButton.getScene().getWindow();
             stage.close();
 
             FXMLLoader fxmlLoader = new FXMLLoader(ClientScheduler.class.getResource("main.fxml"));
             Scene scene = new Scene(fxmlLoader.load(), 1323, 493);
             stage.setScene(scene);
+            stage.setTitle("Client Scheduler");
             stage.show();
 
             checkAppointments();

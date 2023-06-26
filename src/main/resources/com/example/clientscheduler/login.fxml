@@ -18,7 +18,8 @@
                   <Label fx:id="bad_pw" layoutX="3.0" layoutY="-8.0" text="Incorrect Username/Password" textFill="RED" visible="false" />
                     </children>
                 </AnchorPane>
-            <Label fx:id="location" layoutX="119.0" layoutY="53.0" text="Location" />
+            <Label fx:id="location" layoutX="113.0" layoutY="70.0" text="Location" />
+            <Label fx:id="timeZone" layoutX="113.0" layoutY="53.0" text="Time Zone:" />
             </children>
         </AnchorPane>
     </children>

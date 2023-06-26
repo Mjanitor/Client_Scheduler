@@ -12,8 +12,26 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+/**
+ * Helper Class that holds the various SQL queries needed to populate customer appointments, appointment modifications,
+ * client additions, and client modifications.  It also includes several getter methods to grab related information from
+ * the database in case it needs to be used in another Class.
+ */
 public class ClientQuery {
-
+    /**
+     * When called, inserts all parameters into the SQL query utilizing bind variables and executes the INSERT.
+     * @param ID customer ID
+     * @param name customer name
+     * @param address customer address
+     * @param post customer zip code
+     * @param phone customer phone #
+     * @param created customer creation date
+     * @param created_by the user who created this customer
+     * @param updated the last time this customer was updated
+     * @param updated_by the last user to update this customer
+     * @param divID the division ID associated with this user
+     * @throws SQLException
+     */
     public static void addCust(int ID, String name, String address, String post, String phone,
                                String created, String created_by, String updated,
                                String updated_by, String divID) throws SQLException {
@@ -33,6 +51,20 @@ public class ClientQuery {
         ps.executeUpdate();
     }
 
+    /**
+     * When called, inserts all parameters into the SQL query utilizing bind variables and executes the UPDATE.
+     * @param ID customer ID
+     * @param name customer name
+     * @param address customer address
+     * @param post customer zip code
+     * @param phone customer phone #
+     * @param created customer creation date
+     * @param created_by the user who created this customer
+     * @param updated the last time this customer was updated
+     * @param updated_by the last user to update this customer
+     * @param divID the division ID associated with this user
+     * @throws SQLException
+     */
     public static void modCust(int ID, String name, String address, String post, String phone,
                                 String created, String created_by, String updated,
                                 String updated_by, String divID) throws SQLException {
@@ -53,6 +85,24 @@ public class ClientQuery {
         ps.executeUpdate();
     }
 
+    /**
+     * When called, inserts all parameters into the SQL query utilizing bind variables and executes the INSERT.
+     * @param ID Appointment ID
+     * @param title Appointment Title
+     * @param description Appointment description
+     * @param location Appointment location
+     * @param type Appointment Type
+     * @param start Appointment start datetime
+     * @param end Appointment end datetime
+     * @param created Time that this appointment was created
+     * @param created_by User who created this appointment
+     * @param updated Time that this appointment was last updated
+     * @param updated_by User who last updated this appointment
+     * @param customer Customer ID
+     * @param user User ID
+     * @param contact Contact ID
+     * @throws SQLException
+     */
     public static void addAppt(int ID, String title, String description, String location, String type,
                                String start, String end, String created,
                                String created_by, String updated, String updated_by, int customer, String user, int contact) throws SQLException {
@@ -77,6 +127,23 @@ public class ClientQuery {
         ps.executeUpdate();
     }
 
+    /**
+     * When called, inserts all parameters into the SQL query utilizing bind variables and executes the UPDATE.
+     * @param ID Appointment ID
+     * @param title Appointment Title
+     * @param desc Appointment description
+     * @param loc Appointment location
+     * @param type Appointment Type
+     * @param start Appointment start datetime
+     * @param end Appointment end datetime
+     * @param created_by User who created this appointment
+     * @param updated Time that this appointment was last updated
+     * @param updated_by User who last updated this appointment
+     * @param custID Customer ID
+     * @param userID User ID
+     * @param contactID Contact ID
+     * @throws SQLException
+     */
     public static void modAppt(int ID, String title, String desc, String loc, String type,
                                String start, String end, String created_by, String updated,
                                String updated_by, int custID, String userID, int contactID) throws SQLException {
@@ -100,12 +167,16 @@ public class ClientQuery {
 
         ps.setInt(13, ID);
 
-        System.out.println("ID: " + ID);
-        System.out.println("Start: " + start);
-
         ps.executeUpdate();
     }
 
+    /**
+     * Helper method which takes in a specific customer ID number, parses and executes the SQL query, and returns the
+     * list of items that belong to that specific customer.
+     * @param id The ID number to fetch the list of customer column items for.
+     * @return A list of items that belong to a specific customer of a certain ID number.
+     * @throws SQLException
+     */
     public static ArrayList<String> getCustomer(int id) throws SQLException {
         String sql = "SELECT * from customers WHERE CUSTOMER_ID = ?";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);
@@ -130,6 +201,13 @@ public class ClientQuery {
         return customerItems;
     }
 
+    /**
+     * Helper method which takes in a specific Appointment ID number, parses and executes the SQL query, and returns the
+     * list of items that belong to that specific appointment.
+     * @param id The ID number to fetch the list of appointment column items for.
+     * @return A list of items that belong to a specific appointment of a certain ID number.
+     * @throws SQLException
+     */
     public static ArrayList<String> getAppt(int id) throws SQLException {
         String sql = "SELECT * from appointments WHERE Appointment_ID = ?";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);
@@ -168,15 +246,23 @@ public class ClientQuery {
             apptItems.add(rs.getString("Customer_ID"));
             apptItems.add(rs.getString("User_ID"));
             apptItems.add(rs.getString("Contact_ID"));
-            System.out.println("Internal appt items: " + apptItems);
         }
 
         return apptItems;
     }
 
-    public static Dictionary<String, String> getApptTimes() throws SQLException {
-        String sql = "SELECT Start, End from appointments";
+    /**
+     * Helper method which takes, as a parameter, an appointment ID number.  The method then takes this appointment ID
+     * number and runs a query for all appointment start and end times for appointments NOT matching that ID and returns
+     * them as a hash map.  This is done to compare any potential overlapping appointment times upon entry.
+     * @param ID An appointment ID number to compare against when checking appointments from the database.
+     * @return A hash map of the start/end times of all listed appointments as a set of key/value pairs.
+     * @throws SQLException
+     */
+    public static Dictionary<String, String> getApptTimes(Integer ID) throws SQLException {
+        String sql = "SELECT Start, End from appointments WHERE Appointment_ID != ?";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);
+        ps.setInt(1, ID);
         Dictionary<String, String> dict = new Hashtable<>();
         ResultSet rs = ps.executeQuery();
 
@@ -184,25 +270,22 @@ public class ClientQuery {
             dict.put(rs.getString("Start"), rs.getString("End"));
         }
 
-        System.out.println("Dict: " + dict);
         return dict;
     }
 
-    public static void update() throws SQLException {
-        String sql = "UPDATE APPOINTMENTS SET TITLE = ? WHERE Type = 'Planning Session'";
-        PreparedStatement ps = JDBC.connection.prepareStatement(sql);
-
-        ps.setString(1, "test");
-
-        ps.executeUpdate();
-    }
-
+    /**
+     * Helper method that takes in the attempted username/password and compares them to potential matches in the DB.  If
+     * there is a match, this function returns true and false if not.
+     * @param user A given username
+     * @param pass A given password
+     * @return Boolean of whether those credentials matched those in the database.
+     * @throws SQLException
+     */
     public static boolean login(String user, String pass) throws SQLException {
         ResourceBundle rb;
-
         Locale locale = Locale.getDefault();
-        System.out.println(locale.getClass());
 
+        // Sets the resource bundle to check if the Locale is French, and translate accordingly
         if (locale.equals(Locale.FRANCE)) {
             Locale.setDefault(new Locale("fr", "FR"));
             rb = ResourceBundle.getBundle("com.example.clientscheduler.Nat_fr");
@@ -211,6 +294,7 @@ public class ClientQuery {
             rb = ResourceBundle.getBundle("com.example.clientscheduler.Nat_en");
         }
 
+        // Grabs the list of all usernames and passwords
         String sql = "SELECT User_Name, Password FROM USERS";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);
         ResultSet rs = ps.executeQuery();
@@ -224,10 +308,12 @@ public class ClientQuery {
                 success = true;
             }
         }
-        System.out.println(user + "  |  " + pass);
+
+        // Confirms login if there is a match
         if (success == true){
             Alert successful_login = new Alert(Alert.AlertType.CONFIRMATION);
             successful_login.setTitle(rb.getString("Success!"));
+            successful_login.setHeaderText(rb.getString("Success"));
             successful_login.setContentText(rb.getString("successful"));
             successful_login.showAndWait();
         }

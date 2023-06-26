@@ -24,5 +24,8 @@
       <Label layoutX="41.0" layoutY="276.0" text="Phone Number" />
       <Label layoutX="38.0" layoutY="311.0" text="Country" />
       <Label layoutX="368.0" layoutY="311.0" text="Division" />
+      <Label layoutX="319.0" layoutY="201.0" text="(Format: 123 ABC Street, Erie)" />
+      <Label layoutX="319.0" layoutY="237.0" text="(Format: 12345)" />
+      <Label layoutX="319.0" layoutY="275.0" text="(Format: 555-153-6871)" />
    </children>
 </AnchorPane>

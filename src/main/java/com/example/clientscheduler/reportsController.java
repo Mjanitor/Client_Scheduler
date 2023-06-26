@@ -27,10 +27,14 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.ResourceBundle;
 import java.util.TimeZone;
 
+/**
+ * The Controller class that handles the "Reports" screen.  It has various radio buttons to allow the user to filter
+ * the view of all appointments and customers by different criteria.  In addition, it counts and displays the sum total
+ * of the specific ComboBox criterion so that amounts may be quickly checked.
+ */
 public class reportsController implements Initializable {
     public Label total;
     public Button back;
@@ -51,17 +55,24 @@ public class reportsController implements Initializable {
     private Parent root;
     public int results_count = 0;
 
-
+    /**
+     * Logs the current user out of the system and loads the initial login screen.
+     * @throws IOException
+     */
     public void onLogout() throws IOException {
         Stage stage = (Stage) logout.getScene().getWindow();
-        //stage.setTitle(rb.getString("scheduler")); //TODO
         stage.close();
 
         FXMLLoader fxmlLoader = new FXMLLoader(ClientScheduler.class.getResource("login.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 640, 400);
         stage.setScene(scene);
+        stage.setTitle("Client Scheduler");
         stage.show();
     }
+
+    /**
+     * Closes out of the Reports screen and takes the user back to the main Client Scheduler screen.
+     */
     public void onBack() {
         Stage stage = (Stage) back.getScene().getWindow();
         stage.close();
@@ -71,17 +82,26 @@ public class reportsController implements Initializable {
             Scene addScene = new Scene(fxmlLoader.load(), 1323, 493);
             Stage addStage = new Stage();
             addStage.setScene(addScene);
+            addStage.setTitle("Client Scheduler");
             addStage.show();
         } catch(Exception e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Dynamically builds the Tableview based upon which radio button is selected.  It handles automatic population of
+     * columns and rows so that the internals of the functionality allow for SQL query filtering for any event and
+     * selection.  This variability of SQL queries is handled by helper methods located in the reportsQuery class.
+     * @throws SQLException
+     */
     public void buildTable() throws SQLException {
         String column = null;
         PreparedStatement ps = null;
         boolean country = false;
+        results_count = 0;
 
+        // Setting local time
         String local = TimeZone.getDefault().getDisplayName().toString();
         if (local.equals("Eastern Standard Time")) {
             local = "America/New_York";
@@ -97,8 +117,8 @@ public class reportsController implements Initializable {
         String comboSQL = null;
         ResultSet rs = null;
 
+        // Filtering by Appointment ID
         if (byID.isSelected()) {
-            results_count = 0;
             String array_contact = null;
             total.setText("Total Appointments: ");
             ArrayList<String> contacts = new ArrayList<String>();
@@ -116,11 +136,12 @@ public class reportsController implements Initializable {
                 System.out.println("No selection.");
             }
 
+            // Helper Method
             rs = reportsQuery.sortByContactID(array_contact);
         }
 
+        // Filtering by Appointment Type
         if (byType.isSelected()) {
-            results_count = 0;
             String array_type = null;
             total.setText("Total Appointments: ");
             ArrayList<String> types = new ArrayList<String>();
@@ -138,11 +159,13 @@ public class reportsController implements Initializable {
                 System.out.println("No selection.");
             }
 
+            // Helper Method
             rs = reportsQuery.sortByType(array_type);
 
         }
+
+        // Filtering by Appointment Month
         if (byMonth.isSelected()) {
-            results_count = 0;
             String array_month = null;
             total.setText("Total Appointments: ");
             ArrayList<String> months = new ArrayList<String>();
@@ -166,10 +189,12 @@ public class reportsController implements Initializable {
             try {
                 array_month = typeCombo.getValue().toString();
             } catch (NullPointerException e) {
-                System.out.println("No selection.");
+                array_month = "None";
             }
 
             int month_num = 0;
+
+            // Translating month to Integer
             switch (array_month) {
                 case "January": month_num = 1;
                     break;
@@ -195,18 +220,21 @@ public class reportsController implements Initializable {
                     break;
                 case "December": month_num = 12;
                     break;
+                case "None": month_num = 0;
+                    break;
             }
 
+            // Helper Method
             rs = reportsQuery.sortByMonth(month_num);
 
         }
+
+        // Filtering Customers by Country Location
         if (byCountry.isSelected()) {
-            results_count = 0;
             String array_country = null;
             ArrayList<String> countries = new ArrayList<String>();
 
             total.setText("Total Customers: ");
-            System.out.println("Inside Country");
             country = true;
 
             countries.add("U.S");
@@ -222,34 +250,30 @@ public class reportsController implements Initializable {
                 System.out.println("No selection.");
             }
 
+            // Helper Method
             rs = reportsQuery.sortByCountry(array_country);
-            System.out.println("Country RS: " + rs);
         }
 
+        // Default
         if (rs == null) {
-            System.out.println("Null: " + rs);
             ps = JDBC.connection.prepareStatement(SQL);
             rs = ps.executeQuery(SQL);
         }
 
+        // Differentiating defaults based on whether Customers or Appointments are requested.
         if (country) {
             SQL = "SELECT * FROM Customers";
+        } else {
+            SQL = "SELECT * FROM Appointments";
         }
-        System.out.println(SQL);
 
-        /**
-         * ********************************
-         * TABLE COLUMN ADDED DYNAMICALLY *
-         *********************************
-         */
+        // Building Dynamic Table
         for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
             //We are using non property style for making dynamic table
             final int j = i;
             TableColumn col = new TableColumn(rs.getMetaData().getColumnName(i + 1));
             String finalSQL = SQL;
             int finalI = i;
-            System.out.println("Final I: " + finalI);
-            System.out.println("Final SQL: " + finalSQL);
             col.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
                 public ObservableValue<String> call(TableColumn.CellDataFeatures<ObservableList, String> param) {
 
@@ -273,11 +297,9 @@ public class reportsController implements Initializable {
             reportsTable.getColumns().addAll(col);
         }
 
-        /**
-         * ******************************
-         * Data added to ObservableList *
-         *******************************
-         */
+        // Setting results to 0 so there is no counting overlap
+        results_count = 0;
+
         while (rs.next()) {
             //Iterate Row
             ObservableList<String> row = FXCollections.observableArrayList();
@@ -290,11 +312,17 @@ public class reportsController implements Initializable {
         }
 
         //FINALLY ADDED TO TableView
+        reportsTable.getItems().clear();
         reportsTable.setItems(reportsData);
         totalCust.setText(String.valueOf(results_count));
 
     }
 
+    /**
+     * Attempts to build the Dynamic Table and throws an Exception if not able.
+     * @param url Standard Parameter
+     * @param resourceBundle Standard Parameter
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
